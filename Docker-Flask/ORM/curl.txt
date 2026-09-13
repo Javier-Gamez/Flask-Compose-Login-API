@@ -1,6 +1,25 @@
 CURLS.-
-#1:
+
+#1 Registro:
 curl -X POST http://localhost:5000/register -H "Content-Type: application/json" -d "{\"username\":\"android_dev\",\"password\":\"mi_password_secreto\"}"
 
-#2:
+#2 Login (guarda el "token" de la respuesta):
 curl -X POST http://localhost:5000/login -H "Content-Type: application/json" -d "{\"username\":\"android_dev\",\"password\":\"mi_password_secreto\"}"
+
+#3 Listar notas (requiere token):
+curl http://localhost:5000/notes -H "Authorization: Bearer TU_TOKEN_AQUI"
+
+#4 Crear nota:
+curl -X POST http://localhost:5000/notes -H "Content-Type: application/json" -H "Authorization: Bearer TU_TOKEN_AQUI" -d "{\"title\":\"Mi primera nota\",\"content\":\"Contenido de prueba\"}"
+
+#5 Obtener una nota:
+curl http://localhost:5000/notes/1 -H "Authorization: Bearer TU_TOKEN_AQUI"
+
+#6 Actualizar una nota:
+curl -X PUT http://localhost:5000/notes/1 -H "Content-Type: application/json" -H "Authorization: Bearer TU_TOKEN_AQUI" -d "{\"title\":\"Titulo editado\"}"
+
+#7 Borrar una nota:
+curl -X DELETE http://localhost:5000/notes/1 -H "Authorization: Bearer TU_TOKEN_AQUI"
+
+#8 Probar endpoint protegido sin token (debe responder 401):
+curl -i http://localhost:5000/notes

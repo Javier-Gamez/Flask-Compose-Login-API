@@ -9,13 +9,13 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# 1. Configuración de la base de datos (Postgres, ver docker-compose.yml)
+# 1. Configuracion de la base de datos (Postgres, ver docker-compose.yml)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL', 'sqlite:///site.db'
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# 2. Configuración de JWT (sesiones seguras)
+# 2. Configuracion de JWT (sesiones seguras)
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_EXP_MINUTES'] = int(os.environ.get('JWT_EXP_MINUTES', '60'))
 
@@ -23,7 +23,7 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
 
-# 3. Modelo de Usuario (la tabla en la BD)
+# 3. Modelos
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,7 +34,29 @@ class User(db.Model):
         return f"User('{self.username}')"
 
 
-# 4. Utilidades de autenticación
+class Note(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(120), nullable=False)
+    content = db.Column(db.Text, nullable=False, default='')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'content': self.content,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+        }
+
+
+# 4. Utilidades de autenticacion
 
 def generate_token(user_id):
     payload = {
@@ -69,7 +91,7 @@ def token_required(f):
     return decorated
 
 
-# 5. Rutas de verificación y autenticación
+# 5. Rutas de verificacion y autenticacion
 
 @app.route('/')
 def hello():
@@ -116,6 +138,72 @@ def login():
         }), 200
 
     return jsonify({"status": "error", "message": "Credenciales invalidas"}), 401
+
+
+# 6. Rutas CRUD de Notas (protegidas)
+
+@app.route('/notes', methods=['GET'])
+@token_required
+def list_notes(current_user):
+    notes = Note.query.filter_by(user_id=current_user.id).order_by(Note.created_at.desc()).all()
+    return jsonify([note.to_dict() for note in notes]), 200
+
+
+@app.route('/notes', methods=['POST'])
+@token_required
+def create_note(current_user):
+    data = request.get_json(silent=True) or {}
+    title = data.get('title')
+    content = data.get('content', '')
+
+    if not title:
+        return jsonify({"message": "title es requerido"}), 400
+
+    note = Note(title=title, content=content, user_id=current_user.id)
+    db.session.add(note)
+    db.session.commit()
+
+    return jsonify(note.to_dict()), 201
+
+
+@app.route('/notes/<int:note_id>', methods=['GET'])
+@token_required
+def get_note(current_user, note_id):
+    note = Note.query.filter_by(id=note_id, user_id=current_user.id).first()
+    if note is None:
+        return jsonify({"message": "Nota no encontrada"}), 404
+    return jsonify(note.to_dict()), 200
+
+
+@app.route('/notes/<int:note_id>', methods=['PUT'])
+@token_required
+def update_note(current_user, note_id):
+    note = Note.query.filter_by(id=note_id, user_id=current_user.id).first()
+    if note is None:
+        return jsonify({"message": "Nota no encontrada"}), 404
+
+    data = request.get_json(silent=True) or {}
+    if 'title' in data:
+        if not data['title']:
+            return jsonify({"message": "title no puede estar vacio"}), 400
+        note.title = data['title']
+    if 'content' in data:
+        note.content = data['content']
+
+    db.session.commit()
+    return jsonify(note.to_dict()), 200
+
+
+@app.route('/notes/<int:note_id>', methods=['DELETE'])
+@token_required
+def delete_note(current_user, note_id):
+    note = Note.query.filter_by(id=note_id, user_id=current_user.id).first()
+    if note is None:
+        return jsonify({"message": "Nota no encontrada"}), 404
+
+    db.session.delete(note)
+    db.session.commit()
+    return jsonify({"message": "Nota eliminada"}), 200
 
 
 if __name__ == '__main__':
