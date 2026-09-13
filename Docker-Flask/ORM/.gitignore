@@ -1,0 +1,12 @@
+# Secretos y configuracion local
+.env
+
+# Datos y artefactos generados
+instance/
+*.db
+__pycache__/
+*.pyc
+
+# Entornos virtuales
+venv/
+.venv/

@@ -1,17 +1,35 @@
-version: '3.8'
-
 services:
+  db:
+    build: ./db
+    container_name: notes_postgres_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-notesdb}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-notesdb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   web:
-    # Construir usando el Dockerfile del directorio actual (.)
     build: .
-    container_name: flask_login_backend
-    
-    # Mapeo de puertos: Puerto PC : Puerto Contenedor
+    container_name: flask_notes_backend
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-notesdb}
     ports:
       - "5000:5000"
-    
-    # Volúmenes: Sincroniza tu carpeta actual con /app en el contenedor.
-    # Esto permite que si cambias el código en tu PC, se actualice en Docker
-    # sin tener que reconstruir la imagen (gracias al debug=True de Flask).
     volumes:
       - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:

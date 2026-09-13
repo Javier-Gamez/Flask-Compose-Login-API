@@ -5,9 +5,10 @@ import os
 
 app = Flask(__name__)
 
-# 1. Configuración de la Base de Datos (SQLite)
-# El archivo se guardará en la carpeta del contenedor como 'site.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+# 1. Configuración de la Base de Datos (Postgres, ver docker-compose.yml)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', 'sqlite:///site.db'
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -41,7 +42,7 @@ def register():
 
     # Encriptar contraseña
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    
+
     # Crear y guardar nuevo usuario
     new_user = User(username=username, password=hashed_password)
     db.session.add(new_user)
@@ -73,5 +74,5 @@ if __name__ == '__main__':
     # Esto crea las tablas automáticamente si no existen al iniciar
     with app.app_context():
         db.create_all()
-    
+
     app.run(host='0.0.0.0', port=5000, debug=True)
