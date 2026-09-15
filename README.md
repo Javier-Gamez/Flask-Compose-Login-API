@@ -208,43 +208,35 @@ El `AndroidManifest.xml` declara `<uses-permission android:name="android.permiss
 
 ### Capturas de pantalla
 
-Flujo completo probado en un emulador Android (Pixel, API level del AVD `Medium_Phone`) contra el backend levantado con `docker compose up --build`.
+Flujo completo probado en un **celular físico** conectado por Wi-Fi al backend levantado con `docker compose up --build` (ver la nota sobre `BASE_URL` más arriba).
 
 **Pantalla de inicio de sesión**
 
-![Login](docs/01_login.png)
+![Login](docs/login.jpeg)
 
 **Registro de usuario**
 
-![Registro](docs/02_register.png)
+![Registro](docs/crear_cuenta.jpeg)
 
 **Inicio de sesión con credenciales incorrectas (401)**
 
-![Login incorrecto](docs/03_login_error.png)
+![Login incorrecto](docs/credenciales_erroneas.jpeg)
 
-**Lista de notas vacía tras iniciar sesión**
+**Menú desplegable con la sesión iniciada**
 
-![Notas vacío](docs/04_notes_empty.png)
+![Menú desplegable](docs/menu_desplegable.jpeg)
 
 **Crear nota (CREATE)**
 
-![Crear nota](docs/05_note_create_dialog.png)
+![Crear nota](docs/creación_nota.jpeg)
 
 **Nota creada (READ / listado)**
 
-![Nota creada](docs/06_notes_list.png)
-
-**Editar nota (UPDATE)**
-
-![Editar nota](docs/07_note_edit_dialog.png)
-
-**Nota actualizada**
-
-![Nota actualizada](docs/08_notes_updated.png)
+![Nota creada](docs/ver_nota.jpeg)
 
 **Nota eliminada (DELETE)**
 
-![Nota eliminada](docs/09_notes_deleted.png)
+![Nota eliminada](docs/nota_borrada.jpeg)
 
 ### QA / verificación de seguridad
 
