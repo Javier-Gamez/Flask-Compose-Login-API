@@ -234,6 +234,10 @@ Flujo completo probado en un **celular físico** conectado por Wi-Fi al backend 
 
 ![Nota creada](docs/ver_nota.jpeg)
 
+**Editar nota (UPDATE)**
+
+![Editar nota](docs/editar_nota.jpeg)
+
 **Nota eliminada (DELETE)**
 
 ![Nota eliminada](docs/nota_borrada.jpeg)
