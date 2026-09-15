@@ -19,11 +19,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // URL base de la API. 10.0.2.2 es la direccion con la que el
-        // emulador de Android alcanza el localhost de la maquina anfitriona.
-        // Para un dispositivo fisico, cambiar por la IP local del equipo,
-        // por ejemplo "http://192.168.1.100:5000/".
-        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:5000/\"")
+        // URL base de la API. Debe ser la IP local (LAN) del equipo que
+        // corre el backend Flask, ya que la app se prueba en un celular
+        // fisico conectado a la misma red Wi-Fi (10.0.2.2 solo funciona
+        // en el emulador). Verifica tu IP actual con "ipconfig" (Windows)
+        // si cambias de red, y actualiza este valor.
+        buildConfigField("String", "BASE_URL", "\"http://192.168.100.7:5000/\"")
     }
 
     buildTypes {

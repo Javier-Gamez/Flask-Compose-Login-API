@@ -2,12 +2,12 @@
 
 ## Portada
 
-- **Nombre completo:** [TU NOMBRE COMPLETO]
-- **Número de boleta:** [TU BOLETA]
-- **Grupo:** [TU GRUPO]
+- **Nombre completo:** Javier de Jesús Gamez Rosas
+- **Número de boleta:** 2022630007
+- **Grupo:** 7CV4
 - **Asignatura:** Desarrollo de aplicaciones móviles nativas
-- **Profesor:** [NOMBRE DEL PROFESOR]
-- **Fecha de entrega:** [FECHA DE ENTREGA]
+- **Profesor:** Gabriel Hurtado Avilés
+- **Fecha de entrega:** 18 de septiembre de 2026
 
 ---
 
@@ -197,8 +197,12 @@ Ver `Docker-Flask/ORM/curl.txt` para ejemplos completos de todos los endpoints (
 
 La URL base de la API se define en `Android/FlaskLogin/app/build.gradle.kts` como `buildConfigField("String", "BASE_URL", ...)`, expuesta en el código como `BuildConfig.BASE_URL`.
 
-- **Emulador de Android Studio:** usar `http://10.0.2.2:5000/` (ya configurado por defecto). `10.0.2.2` es la dirección con la que el emulador alcanza el `localhost` de la máquina anfitriona; `localhost` dentro del emulador apunta al propio emulador, no a la PC.
-- **Dispositivo físico en la misma red Wi-Fi:** cambiar `BASE_URL` por la IP local de la PC que corre Docker, por ejemplo `http://192.168.1.100:5000/`.
+> ⚠️ **Este repositorio trae `BASE_URL` apuntando a `http://192.168.100.7:5000/`**, la IP de Wi-Fi de la máquina donde se probó la app en un **celular físico**. Esa IP es local a esa red y no funcionará en otro equipo, por lo que **debe cambiarse manualmente** según dónde se vaya a ejecutar la app:
+
+- **Emulador de Android Studio:** cambiar `BASE_URL` a `http://10.0.2.2:5000/`. `10.0.2.2` es la dirección con la que el emulador alcanza el `localhost` de la máquina anfitriona; `localhost` dentro del emulador apunta al propio emulador, no a la PC.
+- **Dispositivo físico en la misma red Wi-Fi que la PC con Docker:** cambiar `BASE_URL` por la IP local (LAN) de esa PC — verificar con `ipconfig` (Windows) o `ip addr`/`ifconfig` (Linux/Mac), por ejemplo `http://192.168.1.100:5000/`.
+
+En ambos casos el cambio se hace editando el valor de `buildConfigField("String", "BASE_URL", "\"...\"")` en `Android/FlaskLogin/app/build.gradle.kts` y volviendo a compilar/sincronizar el proyecto en Android Studio.
 
 El `AndroidManifest.xml` declara `<uses-permission android:name="android.permission.INTERNET" />` y `android:usesCleartextTraffic="true"` en `<application>`, necesario porque durante el desarrollo la API se consume por HTTP simple (sin TLS).
 

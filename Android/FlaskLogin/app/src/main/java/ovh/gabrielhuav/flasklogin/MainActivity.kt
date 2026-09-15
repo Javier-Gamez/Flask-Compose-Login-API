@@ -1,16 +1,30 @@
 package ovh.gabrielhuav.flasklogin
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -34,7 +49,12 @@ import ovh.gabrielhuav.flasklogin.ui.theme.FlaskLoginTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // La app siempre usa tema oscuro, asi que forzamos iconos claros
+        // en las barras del sistema sin depender del modo del dispositivo.
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
+        )
         setContent {
             FlaskLoginTheme {
                 AppRoot()
@@ -78,13 +98,34 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
             TopAppBar(
                 title = { Text("FlaskLogin Notas") },
                 actions = {
-                    TextButton(onClick = { menuExpanded = true }) {
-                        Text("Menú")
+                    IconButton(onClick = { menuExpanded = true }) {
+                        Icon(Icons.Default.Menu, contentDescription = "Abrir menú")
                     }
                     DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+                        if (token != null) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.AccountCircle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = username ?: "",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                            }
+                            HorizontalDivider()
+                        }
+
                         if (token == null) {
                             DropdownMenuItem(
                                 text = { Text("Inicio de sesión") },
+                                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                                 onClick = {
                                     menuExpanded = false
                                     navController.navigate(ROUTE_LOGIN) { launchSingleTop = true }
@@ -92,6 +133,7 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
                             )
                             DropdownMenuItem(
                                 text = { Text("Registro de usuario") },
+                                leadingIcon = { Icon(Icons.Default.Create, contentDescription = null) },
                                 onClick = {
                                     menuExpanded = false
                                     navController.navigate(ROUTE_REGISTER) { launchSingleTop = true }
@@ -100,13 +142,21 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
                         } else {
                             DropdownMenuItem(
                                 text = { Text("Notas") },
+                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
                                 onClick = {
                                     menuExpanded = false
                                     navController.navigate(ROUTE_NOTES) { launchSingleTop = true }
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Cerrar sesión (${username ?: ""})") },
+                                text = { Text("Cerrar sesión") },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ExitToApp,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                },
                                 onClick = {
                                     menuExpanded = false
                                     viewModel.logout()
